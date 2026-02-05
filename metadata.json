@@ -1,0 +1,8 @@
+{
+  "name": "Shadaj : Where musicians are collectively resonant. ",
+  "description": "A comprehensive social platform for Indian music students and professionals featuring social feeds, guru search, real-time video sessions, and virtual practice rooms with Tanpura and Harmonium simulations.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
