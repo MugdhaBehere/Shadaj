@@ -70,14 +70,14 @@ export const db = new ShadajDatabase();
 (db as any).on('populate', () => {
   db.users.bulkAdd([
     {
-      id: 'demo@shadaj.com',
-      email: 'demo@shadaj.com',
-      name: 'Demo Student',
+      id: 'studentA@shadaj.com',
+      email: 'studentA@shadaj.com',
+      name: 'Student A',
       password: 'password',
       role: 'student',
-      avatar: 'https://ui-avatars.com/api/?name=Demo+Student&background=random',
+      avatar: 'https://ui-avatars.com/api/?name=Student+A&background=random',
       instrument: 'Vocal',
-      bio: 'Enthusiastic learner of Khayal.',
+      bio: 'Enthusiastic learner of Khayal. Seeking to master the Gwalior Gharana style.',
       connections: [],
       createdAt: Date.now(),
       examinationLevel: 'Praveshika Purna',
@@ -86,29 +86,29 @@ export const db = new ShadajDatabase();
       points: 500
     },
     {
-      id: 'g1',
-      email: 'ravi@shadaj.com',
-      name: 'Demo Teacher A',
+      id: 'teacherA@shadaj.com',
+      email: 'teacherA@shadaj.com',
+      name: 'Teacher A',
       role: 'guru',
-      avatar: 'https://picsum.photos/seed/guru1/100/100',
+      avatar: 'https://ui-avatars.com/api/?name=Teacher+A&background=0d9488&color=fff',
       instrument: 'Sitar',
-      bio: 'Exp: 25+ years. Specializes in Maihar Gharana.',
+      bio: 'Exp: 30+ years. Specializes in Maihar Gharana and advanced laykari.',
       connections: [],
       createdAt: Date.now(),
       examinationLevel: 'Sangit Acharya',
       interests: ['Sitar', 'Teaching', 'Research'],
-      dob: '1975-08-20',
+      dob: '1970-08-20',
       points: 12000
     },
     {
-      id: 's1',
-      email: 'vikram@shadaj.com',
-      name: 'Demo Student B',
+      id: 'studentB@shadaj.com',
+      email: 'studentB@shadaj.com',
+      name: 'Student B',
       role: 'student',
-      avatar: 'https://picsum.photos/seed/s1/100/100',
+      avatar: 'https://ui-avatars.com/api/?name=Student+B&background=random',
       instrument: 'Sitar',
-      bio: 'Intermediate level, working on Raag Yaman.',
-      connections: ['demo@shadaj.com'],
+      bio: 'Intermediate level, working on Raag Yaman and fast taans.',
+      connections: ['studentA@shadaj.com'],
       createdAt: Date.now(),
       examinationLevel: 'Madhyama Pratham',
       interests: ['Sitar', 'Fusion'],
@@ -116,45 +116,60 @@ export const db = new ShadajDatabase();
       points: 350
     },
     {
-      id: 's2',
-      email: 'sanya@shadaj.com',
-      name: 'Demo Student A',
+      id: 'studentC@shadaj.com',
+      email: 'studentC@shadaj.com',
+      name: 'Student C',
       role: 'student',
-      avatar: 'https://picsum.photos/seed/s2/100/100',
+      avatar: 'https://ui-avatars.com/api/?name=Student+C&background=random',
       instrument: 'Vocal',
-      bio: 'Beginner, focusing on Alankaars.',
+      bio: 'Beginner, focusing on Alankaars and voice culture.',
       connections: [],
       createdAt: Date.now(),
       examinationLevel: 'Prarambhik',
-      interests: ['Vocal', 'Light Music'],
+      interests: ['Vocal', 'Light Music', 'Carnatic'],
       dob: '2002-11-05',
       points: 150
+    },
+    {
+      id: 'teacherB@shadaj.com',
+      email: 'teacherB@shadaj.com',
+      name: 'Teacher B',
+      role: 'guru',
+      avatar: 'https://ui-avatars.com/api/?name=Teacher+B&background=0d9488&color=fff',
+      instrument: 'Vocal',
+      bio: 'Renowned Khayal vocalist and researcher in Thumri.',
+      connections: [],
+      createdAt: Date.now(),
+      examinationLevel: 'Sangit Acharya',
+      interests: ['Vocal', 'Thumri', 'Dadra'],
+      dob: '1980-03-12',
+      points: 8500
     }
   ]);
 
   db.posts.bulkAdd([
     {
       id: 'p1',
-      authorId: 'g1',
-      authorName: 'Demo Teacher',
-      authorAvatar: 'https://picsum.photos/seed/guru1/100/100',
+      authorId: 'teacherA@shadaj.com',
+      authorName: 'Teacher A',
+      authorAvatar: 'https://ui-avatars.com/api/?name=Teacher+A&background=0d9488&color=fff',
       authorRole: 'guru',
       authorInstrument: 'Sitar',
-      content: "Just finished a morning session of Raag Ahir Bhairav. The transition between Komal Re and Shuddha Re is always magical.",
+      content: "Just finished a morning session of Raag Ahir Bhairav. The transition between Komal Re and Shuddha Re is always magical. Practice slowly to get the meend right.",
       image: 'https://picsum.photos/seed/music1/800/450',
-      likedBy: ['demo@shadaj.com', 'user2'],
+      likedBy: ['studentA@shadaj.com', 'studentB@shadaj.com'],
       comments: [
         {
           id: 'c1',
-          authorId: 'demo@shadaj.com',
-          authorName: 'Demo Student',
-          authorAvatar: 'https://ui-avatars.com/api/?name=Demo+Student&background=random',
-          text: 'Pranam Guruji, that sounds divine!',
+          authorId: 'studentA@shadaj.com',
+          authorName: 'Student A',
+          authorAvatar: 'https://ui-avatars.com/api/?name=Student+A&background=random',
+          text: 'Pranam Guruji, that sounds divine! I will practice the meend today.',
           timestamp: new Date().toISOString()
         }
       ],
       timestamp: Date.now() - 7200000,
-      tags: ['#RaagAhirBhairav', '#Santoor', '#MorningRiyaz']
+      tags: ['#RaagAhirBhairav', '#Sitar', '#MorningRiyaz']
     }
   ]);
   
@@ -162,7 +177,7 @@ export const db = new ShadajDatabase();
   db.notifications.bulkAdd([
     {
         id: 'n1',
-        userId: 'demo@shadaj.com',
+        userId: 'studentA@shadaj.com',
         type: 'system',
         title: 'Welcome to Shadaj',
         message: 'Complete your profile to start connecting with gurus.',

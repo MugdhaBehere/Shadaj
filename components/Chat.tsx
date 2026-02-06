@@ -3,9 +3,9 @@ import { Message, User } from '../types';
 import { generateMusicEmoticon, generateSmartAudio } from '../services/geminiService';
 
 const MOCK_FRIENDS: User[] = [
-  { id: '2', name: 'User A', avatar: 'https://ui-avatars.com/api/?name=User+A&background=random', role: 'student', instrument: 'Tabla', connections: [], points: 350 },
-  { id: '3', name: 'User B', avatar: 'https://ui-avatars.com/api/?name=User+B&background=random', role: 'student', instrument: 'Vocal', connections: [], points: 150 },
-  { id: '4', name: 'User C', avatar: 'https://ui-avatars.com/api/?name=User+C&background=random', role: 'student', instrument: 'Bansuri', connections: [], points: 200 },
+  { id: 'teacherA', name: 'Teacher A', avatar: 'https://ui-avatars.com/api/?name=Teacher+A&background=0d9488&color=fff', role: 'guru', instrument: 'Sitar', connections: [], points: 12000 },
+  { id: 'studentB', name: 'Student B', avatar: 'https://ui-avatars.com/api/?name=Student+B&background=random', role: 'student', instrument: 'Sitar', connections: [], points: 350 },
+  { id: 'studentC', name: 'Student C', avatar: 'https://ui-avatars.com/api/?name=Student+C&background=random', role: 'student', instrument: 'Vocal', connections: [], points: 150 },
 ];
 
 interface ChatProps {
@@ -16,9 +16,9 @@ const Chat: React.FC<ChatProps> = ({ onVideoCall }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(MOCK_FRIENDS[0]);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', senderId: '2', text: 'Hey, did you practice the new composition?', timestamp: '10:30 AM' },
-    { id: '2', senderId: 'me', text: 'Yeah, working on the fast taans now.', timestamp: '10:31 AM' },
-    { id: '3', senderId: '2', text: 'Nice! Want to jam on video later tonight?', timestamp: '10:31 AM' },
+    { id: '1', senderId: 'teacherA', text: 'Beta, did you practice the new composition in Yaman?', timestamp: '10:30 AM' },
+    { id: '2', senderId: 'me', text: 'Yes Guruji, working on the fast taans now.', timestamp: '10:31 AM' },
+    { id: '3', senderId: 'teacherA', text: 'Excellent. Keep the laya steady. We can review in class.', timestamp: '10:31 AM' },
   ]);
   const [isAiMenuOpen, setIsAiMenuOpen] = useState(false);
   const [isProcessingAI, setIsProcessingAI] = useState(false);
