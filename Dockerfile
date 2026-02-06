@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy package files first to leverage Docker cache
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies for building)
+# Install dependencies
 RUN npm install
 
 # Copy the rest of the application code
@@ -16,7 +16,7 @@ COPY . .
 ARG API_KEY
 ARG VITE_GOOGLE_CLIENT_ID
 
-# 2. Set them as environment variables so Vite can access them during 'npm run build'
+# 2. Set them as environment variables so Vite can use them during build
 ENV API_KEY=$API_KEY
 ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 
@@ -40,7 +40,7 @@ COPY --from=builder /app/dist ./dist
 # Copy the server code
 COPY --from=builder /app/server ./server
 
-# Cloud Run automatically sets the PORT env var to 8080
+# Cloud Run sets PORT to 8080 by default
 ENV PORT=8080
 
 # Start the Express server

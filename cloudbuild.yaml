@@ -34,7 +34,11 @@ steps:
 images:
   - 'gcr.io/$PROJECT_ID/shadaj'
 
-# Define substitution variables (values are passed via CLI --substitutions)
+# Fix for "build.service_account is specified" error
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# Define substitution variables (values are passed via CLI --substitutions or Trigger)
 substitutions:
   _API_KEY: ''
   _VITE_GOOGLE_CLIENT_ID: ''
