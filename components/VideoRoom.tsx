@@ -35,9 +35,9 @@ const VideoRoom: React.FC<VideoRoomProps> = ({ userRole, onUpdateUser }) => {
 
   // Data States
   const [participants, setParticipants] = useState([
-    { id: '1', name: 'User A (Guru)', role: 'guru', isMe: false, isMuted: false, isHandRaised: false },
-    { id: '2', name: 'User B', role: 'student', isMe: false, isMuted: true, isHandRaised: true },
-    { id: '3', name: 'User C', role: 'student', isMe: false, isMuted: false, isHandRaised: false },
+    { id: '1', name: 'Teacher A (Guru)', role: 'guru', isMe: false, isMuted: false, isHandRaised: false },
+    { id: '2', name: 'Student B', role: 'student', isMe: false, isMuted: true, isHandRaised: true },
+    { id: '3', name: 'Student C', role: 'student', isMe: false, isMuted: false, isHandRaised: false },
   ]);
   
   // Connection Data
@@ -486,17 +486,12 @@ const VideoRoom: React.FC<VideoRoomProps> = ({ userRole, onUpdateUser }) => {
       e.preventDefault();
       setIsSendingInvites(true);
       
-      let recipientIds: string[] = [];
+      const recipientIds = selectedInvitees;
 
-      if (userRole === 'guru') {
-          recipientIds = myConnections.map(c => c.id); 
-      } else {
-          recipientIds = selectedInvitees;
-          if (recipientIds.length === 0) {
-              alert("Please select at least one connection to invite.");
-              setIsSendingInvites(false);
-              return;
-          }
+      if (recipientIds.length === 0) {
+          alert("Please select at least one connection to invite.");
+          setIsSendingInvites(false);
+          return;
       }
 
       try {
@@ -768,7 +763,7 @@ const VideoRoom: React.FC<VideoRoomProps> = ({ userRole, onUpdateUser }) => {
              {/* Spoken Language Select (Visible only when captions on) */}
              {isCaptionsOn && (
                  <div className="absolute right-8 bottom-24 bg-stone-800 p-2 rounded-xl border border-stone-700 animate-in slide-in-from-bottom-2">
-                     <div className="text-[10px] text-stone-400 font-bold uppercase mb-1 px-1"> Language you prefer</div>
+                     <div className="text-[10px] text-stone-400 font-bold uppercase mb-1 px-1">Speaking Language</div>
                      <select 
                         value={spokenLanguage}
                         onChange={(e) => setSpokenLanguage(e.target.value)}
@@ -853,7 +848,109 @@ const VideoRoom: React.FC<VideoRoomProps> = ({ userRole, onUpdateUser }) => {
     </div>
   );
 
-  return isJoined ? renderActiveRoom() : renderLobby();
+  return (
+    <>
+      {isJoined ? renderActiveRoom() : renderLobby()}
+
+      {/* SCHEDULE SESSION MODAL */}
+      {showScheduleModal && (
+        <div className="fixed inset-0 z-[150] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+             <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+                 {/* Header */}
+                 <div className="p-8 border-b border-stone-100 flex justify-between items-center bg-stone-50">
+                     <div>
+                         <h2 className="text-2xl font-serif font-black text-stone-900">Schedule Session</h2>
+                         <p className="text-stone-500 text-xs font-bold uppercase tracking-widest mt-1">Plan a class or jam</p>
+                     </div>
+                     <button onClick={() => setShowScheduleModal(false)} className="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center text-stone-400 hover:text-red-500 hover:border-red-200 transition-all">
+                         <i className="fas fa-times"></i>
+                     </button>
+                 </div>
+                 
+                 {/* Form */}
+                 <form onSubmit={handleScheduleSubmit} className="p-8 space-y-6">
+                     {/* Topic */}
+                     <div>
+                         <label className="block text-xs font-black uppercase text-stone-400 mb-2">Topic / Raag</label>
+                         <input 
+                            type="text" 
+                            required
+                            value={scheduleForm.topic}
+                            onChange={e => setScheduleForm({...scheduleForm, topic: e.target.value})}
+                            placeholder="e.g. Raag Yaman Workshop"
+                            className="w-full bg-stone-50 border-2 border-stone-100 rounded-xl px-4 py-3 font-bold text-stone-900 focus:outline-none focus:border-purple-500"
+                         />
+                     </div>
+
+                     <div className="grid grid-cols-2 gap-4">
+                         <div>
+                             <label className="block text-xs font-black uppercase text-stone-400 mb-2">Date</label>
+                             <input 
+                                type="date" 
+                                required
+                                value={scheduleForm.date}
+                                onChange={e => setScheduleForm({...scheduleForm, date: e.target.value})}
+                                className="w-full bg-stone-50 border-2 border-stone-100 rounded-xl px-4 py-3 font-bold text-stone-900 focus:outline-none focus:border-purple-500"
+                             />
+                         </div>
+                         <div>
+                             <label className="block text-xs font-black uppercase text-stone-400 mb-2">Time</label>
+                             <input 
+                                type="time" 
+                                required
+                                value={scheduleForm.time}
+                                onChange={e => setScheduleForm({...scheduleForm, time: e.target.value})}
+                                className="w-full bg-stone-50 border-2 border-stone-100 rounded-xl px-4 py-3 font-bold text-stone-900 focus:outline-none focus:border-purple-500"
+                             />
+                         </div>
+                     </div>
+
+                     {/* Invitees Selection */}
+                     <div>
+                         <label className="block text-xs font-black uppercase text-stone-400 mb-2">Invite Connections</label>
+                         <div className="border-2 border-stone-100 rounded-xl p-2 max-h-40 overflow-y-auto custom-scrollbar bg-stone-50">
+                             {myConnections.length === 0 ? (
+                                 <p className="text-center text-xs text-stone-400 py-4">No connections found. Go to Network to connect.</p>
+                             ) : (
+                                 <div className="space-y-1">
+                                     {myConnections.map(user => (
+                                         <div 
+                                            key={user.id} 
+                                            onClick={() => toggleInvitee(user.id)}
+                                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedInvitees.includes(user.id) ? 'bg-purple-100 border border-purple-200' : 'hover:bg-white border border-transparent'}`}
+                                         >
+                                             <div className={`w-5 h-5 rounded border flex items-center justify-center ${selectedInvitees.includes(user.id) ? 'bg-purple-600 border-purple-600 text-white' : 'bg-white border-stone-300'}`}>
+                                                 {selectedInvitees.includes(user.id) && <i className="fas fa-check text-[10px]"></i>}
+                                             </div>
+                                             <img src={user.avatar} className="w-8 h-8 rounded-full" alt={user.name} />
+                                             <span className="text-sm font-bold text-stone-700">{user.name}</span>
+                                             <span className="text-[10px] text-stone-400 uppercase ml-auto">{user.role}</span>
+                                         </div>
+                                     ))}
+                                 </div>
+                             )}
+                         </div>
+                         <div className="flex justify-end mt-2">
+                             <button type="button" onClick={() => setSelectedInvitees(myConnections.map(u => u.id))} className="text-[10px] font-bold text-purple-600 hover:underline uppercase tracking-wide">Select All</button>
+                             <span className="mx-2 text-stone-300">|</span>
+                             <button type="button" onClick={() => setSelectedInvitees([])} className="text-[10px] font-bold text-stone-400 hover:text-stone-600 uppercase tracking-wide">Clear</button>
+                         </div>
+                     </div>
+
+                     <button 
+                        type="submit"
+                        disabled={isSendingInvites}
+                        className="w-full bg-stone-900 text-white py-4 rounded-xl font-black shadow-xl hover:bg-black transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                     >
+                        {isSendingInvites ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-calendar-check"></i>}
+                        Send Invites
+                     </button>
+                 </form>
+             </div>
+        </div>
+      )}
+    </>
+  );
 };
 
 interface ControlBtnProps {
