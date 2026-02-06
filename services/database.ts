@@ -88,7 +88,7 @@ export const db = new ShadajDatabase();
     {
       id: 'g1',
       email: 'ravi@shadaj.com',
-      name: 'Pt. Ravinder Singh',
+      name: 'Demo Teacher A',
       role: 'guru',
       avatar: 'https://picsum.photos/seed/guru1/100/100',
       instrument: 'Sitar',
@@ -103,7 +103,7 @@ export const db = new ShadajDatabase();
     {
       id: 's1',
       email: 'vikram@shadaj.com',
-      name: 'Vikram Mehta',
+      name: 'Demo Student B',
       role: 'student',
       avatar: 'https://picsum.photos/seed/s1/100/100',
       instrument: 'Sitar',
@@ -118,7 +118,7 @@ export const db = new ShadajDatabase();
     {
       id: 's2',
       email: 'sanya@shadaj.com',
-      name: 'Sanya Mirza',
+      name: 'Demo Student A',
       role: 'student',
       avatar: 'https://picsum.photos/seed/s2/100/100',
       instrument: 'Vocal',
@@ -136,7 +136,7 @@ export const db = new ShadajDatabase();
     {
       id: 'p1',
       authorId: 'g1',
-      authorName: 'Pt. Ravinder Singh',
+      authorName: 'Demo Teacher',
       authorAvatar: 'https://picsum.photos/seed/guru1/100/100',
       authorRole: 'guru',
       authorInstrument: 'Sitar',

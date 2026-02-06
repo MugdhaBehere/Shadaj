@@ -263,7 +263,7 @@ const App: React.FC = () => {
                   <div className="p-5 bg-purple-50/40 rounded-[2rem] border-2 border-purple-100 cursor-pointer hover:bg-purple-50 transition-all hover:scale-[1.02] shadow-sm" onClick={() => setActiveSection(AppSection.VIDEO_ROOM)}>
                     <p className="text-[9px] font-black text-purple-600 uppercase tracking-widest mb-2">Today • 6:00 PM</p>
                     <p className="text-sm font-black text-stone-800 leading-tight">
-                      {user.role === 'guru' ? 'Advanced Sitar Class' : 'Khayal Basics with Pt. Ravinder'}
+                      {user.role === 'guru' ? 'Advanced Sitar Class' : 'Khayal Basics with Teacher A'}
                     </p>
                     <div className="mt-4 flex items-center gap-2 text-[10px] font-black text-pink-500 uppercase tracking-widest">
                       <i className="fas fa-play-circle animate-pulse text-lg"></i> GO TO ROOM

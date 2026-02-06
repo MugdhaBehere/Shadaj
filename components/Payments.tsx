@@ -208,8 +208,8 @@ const Payments: React.FC<PaymentsProps> = ({ userRole, onUpdateUser }) => {
                 <div>
                   <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block mb-3 pl-1">Select Your Guru</label>
                   <select className="w-full bg-stone-50 border-2 border-stone-100 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none appearance-none">
-                    <option>Pt. Ravinder Singh (Sitar)</option>
-                    <option>Ustad Munawar Ali (Vocal)</option>
+                    <option> Teacher A (Sitar)</option>
+                    <option> Teacher B (Vocal)</option>
                   </select>
                 </div>
               )}
