@@ -54,7 +54,9 @@ class ShadajDatabase extends Dexie {
   notifications!: Table<NotificationEntity>;
 
   constructor() {
-    super('ShadajDB');
+    // CHANGE: Renamed to v2 to force a fresh database creation with new seed data
+    super('ShadajDB_v2');
+    
     // Define schema
     (this as any).version(1).stores({
       users: 'id, email, role',
