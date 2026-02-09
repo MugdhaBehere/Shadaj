@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppSection, User } from './types';
 import Navbar from './components/Navbar';
@@ -109,6 +110,7 @@ const App: React.FC = () => {
       case AppSection.CHAT:
         return <Chat onVideoCall={() => setActiveSection(AppSection.VIDEO_ROOM)} />;
       case AppSection.LIVE_GURU:
+        // Using AIMusicGuru component
         return <AIMusicGuru onUpdateUser={handleUpdateUser} />;
       case AppSection.VIDEO_ROOM:
         return <VideoRoom userRole={user.role} onUpdateUser={handleUpdateUser} />;

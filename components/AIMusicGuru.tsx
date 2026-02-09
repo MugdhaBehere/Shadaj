@@ -5,11 +5,11 @@ import { decode, decodeAudioData, createPcmBlob } from '../services/geminiServic
 import { api } from '../services/api';
 import { User } from '../types';
 
-interface LiveGuruProps {
+interface AIMusicGuruProps {
     onUpdateUser?: (user: User) => void;
 }
 
-export const LiveGuru: React.FC<LiveGuruProps> = ({ onUpdateUser }) => {
+export const AIMusicGuru: React.FC<AIMusicGuruProps> = ({ onUpdateUser }) => {
   const [isActive, setIsActive] = useState(false);
   const [status, setStatus] = useState("Connect with your AI Sangeet Guru");
   const [showPointsToast, setShowPointsToast] = useState(false);
@@ -165,7 +165,7 @@ export const LiveGuru: React.FC<LiveGuruProps> = ({ onUpdateUser }) => {
         )}
       </div>
 
-      <h2 className="text-2xl font-serif font-bold mb-2">Live AI Guru Session</h2>
+      <h2 className="text-2xl font-serif font-bold mb-2">AI Music Guru</h2>
       <p className="text-stone-500 mb-8 max-w-md">{status}</p>
 
       {isActive ? (
@@ -210,3 +210,5 @@ export const LiveGuru: React.FC<LiveGuruProps> = ({ onUpdateUser }) => {
     </div>
   );
 };
+
+export default AIMusicGuru;
