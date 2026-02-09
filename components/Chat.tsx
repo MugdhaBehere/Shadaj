@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, User } from '../types';
 import { generateMusicEmoticon, generateSmartAudio } from '../services/geminiService';
@@ -57,8 +58,9 @@ const Chat: React.FC<ChatProps> = ({ onVideoCall }) => {
               const emoji = await generateMusicEmoticon(input);
               if (emoji) sendMessage({ text: emoji, isAI: true });
           }
-      } catch(e) {
+      } catch(e: any) {
           console.error(e);
+          alert(`AI Error: ${e.message || "Failed to generate"}`);
       } finally {
           setIsProcessingAI(false);
       }
@@ -66,9 +68,14 @@ const Chat: React.FC<ChatProps> = ({ onVideoCall }) => {
 
   const sendQuickPranaam = async () => {
       setIsProcessingAI(true);
-      const emoji = await generateMusicEmoticon("Offering Pranaam to Guru");
-      if (emoji) sendMessage({ text: emoji, isAI: true });
-      setIsProcessingAI(false);
+      try {
+        const emoji = await generateMusicEmoticon("Offering Pranaam to Guru");
+        if (emoji) sendMessage({ text: emoji, isAI: true });
+      } catch (e: any) {
+        alert(`AI Error: ${e.message}`);
+      } finally {
+        setIsProcessingAI(false);
+      }
   };
 
   return (

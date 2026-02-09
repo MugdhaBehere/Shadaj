@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { User } from '../types';
 import { api } from '../services/api';
@@ -107,9 +108,14 @@ const Feed: React.FC<FeedProps> = ({ user, onUpdateUser }) => {
           if (generatedText) {
               setNewPostContent(generatedText.trim());
           }
-      } catch (e) {
+      } catch (e: any) {
           console.error("AI Text Gen failed", e);
-          alert("AI Generation failed. Check API Key.");
+          const msg = e.message || "Unknown error";
+          if (msg.includes('429')) {
+             alert("AI is busy (Rate Limit). Please wait a moment and try again.");
+          } else {
+             alert(`AI Generation failed: ${msg}`);
+          }
       } finally {
           setIsGeneratingAI(false);
       }
@@ -130,7 +136,15 @@ const Feed: React.FC<FeedProps> = ({ user, onUpdateUser }) => {
           } else {
               alert("Audio generation failed.");
           }
-      } catch(e) { console.error(e); }
+      } catch(e: any) { 
+          console.error(e);
+          const msg = e.message || "Unknown error";
+          if (msg.includes('429')) {
+             alert("AI is busy (Rate Limit). Please wait a moment and try again.");
+          } else {
+             alert(`AI Audio Generation failed: ${msg}`);
+          }
+      }
       finally { setIsGeneratingAI(false); }
   };
 

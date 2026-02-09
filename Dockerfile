@@ -1,30 +1,31 @@
-# 1. Use Node.js LTS (Long Term Support) as the base image
+# 1. Use Node.js LTS
 FROM node:18-alpine
 
-# 2. Set the working directory inside the container
+# 2. Set working directory
 WORKDIR /app
 
-# 3. Copy package files first to leverage Docker cache for dependencies
+# 3. Copy package files and install dependencies
 COPY package*.json ./
-
-# 4. Install dependencies
 RUN npm install
 
-# 5. Copy the rest of the application code
+# 4. Copy the rest of the application code
 COPY . .
 
+# 5. Define Build Arguments for Frontend (Vite)
+# These must be passed via --build-arg during docker build
 ARG API_KEY
 ARG VITE_GOOGLE_CLIENT_ID
 
-# 7. Set Environment Variables for the build process
+# 6. Set Environment Variables for the build process
 ENV API_KEY=$API_KEY
 ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 
-# 8. Build the frontend (creates the /dist folder)
+
+# 7. Build the frontend
 RUN npm run build
 
-# 9. Expose the port the app runs on (matching server/index.js)
+# 8. Expose the backend port
 EXPOSE 5000
 
-# 10. Start the Express server
+# 9. Start the Express server
 CMD ["node", "server/index.js"]

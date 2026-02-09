@@ -1,7 +1,23 @@
 
 import { GoogleGenAI, Type, Modality, GenerateContentResponse } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || "";
+// --- ROBUST API KEY RETRIEVAL ---
+// Checks the injected process.env (from vite.config.ts) or standard Vite import.meta.env
+const getApiKey = () => {
+    return process.env.API_KEY || 
+           (import.meta as any).env?.VITE_API_KEY || 
+           (import.meta as any).env?.API_KEY || 
+           "";
+};
+
+// --- CLIENT FACTORY WITH ERROR GUARD ---
+const getClient = () => {
+    const key = getApiKey();
+    if (!key) {
+        throw new Error("Gemini API Key is missing. Please check your .env file or Cloud Build settings.");
+    }
+    return new GoogleGenAI({ apiKey: key });
+};
 
 // --- HELPER: RETRY LOGIC ---
 const withRetry = async <T>(operation: () => Promise<T>, retries = 3, delay = 1000): Promise<T> => {
@@ -69,7 +85,7 @@ function pcmToWavDataUri(pcmData: Uint8Array, sampleRate: number = 24000): Promi
 // --- ENCYCLOPEDIA BOT ---
 
 export const askMusicEncyclopedia = async (userQuery: string, history: {role: string, parts: {text: string}[]}[] = []) => {
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  const ai = getClient();
   
   // Construct chat history for context
   const chat = ai.chats.create({
@@ -93,7 +109,7 @@ export const askMusicEncyclopedia = async (userQuery: string, history: {role: st
 // --- BASIC TEXT GENERATION ---
 
 export const getGeminiResponse = async (prompt: string) => {
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  const ai = getClient();
   const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: prompt,
@@ -105,7 +121,7 @@ export const getGeminiResponse = async (prompt: string) => {
 };
 
 export const generateCreativePost = async (topic: string) => {
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  const ai = getClient();
   const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Write a short, engaging social media post (max 200 characters) about "${topic}" in the context of Indian Classical Music. Include 2 relevant hashtags.`,
@@ -119,7 +135,7 @@ export const generateCreativePost = async (topic: string) => {
 // --- MULTIMEDIA GENERATION (AUDIO & EMOJI ONLY) ---
 
 export const generateMusicEmoticon = async (action: string) => {
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    const ai = getClient();
     const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Generate a single or pair of emojis that best represent this Indian Music action: "${action}". 
@@ -133,7 +149,7 @@ export const generateMusicEmoticon = async (action: string) => {
 };
 
 export const generateSmartAudio = async (topic: string) => {
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    const ai = getClient();
     
     // 1. Generate Script (Semantic Understanding)
     let scriptToSpeak = topic;
@@ -179,7 +195,7 @@ export const generateSmartAudio = async (topic: string) => {
 export const translateText = async (text: string, sourceLanguage: string = '') => {
     if (!text || !text.trim()) return '';
     
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    const ai = getClient();
     
     try {
         const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
@@ -211,7 +227,7 @@ export const translateText = async (text: string, sourceLanguage: string = '') =
 // --- PAYMENTS AI (GURU DAKSHINA STRATEGY) ---
 
 export const parsePaymentIntent = async (userInput: string) => {
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  const ai = getClient();
   
   const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -239,7 +255,7 @@ export const parsePaymentIntent = async (userInput: string) => {
 };
 
 export const generateInvoiceNote = async (amount: number, type: string, userRole: 'student' | 'guru') => {
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  const ai = getClient();
   
   const prompt = userRole === 'guru' 
     ? `Write a "Dakshina Patra" (Invoice Note) from a Music Guru to a student for ${amount} points for ${type}. It should be dignified, mentioning the value of 'Vidya' (Knowledge) and 'Sadhana' (Practice). Max 20 words.`

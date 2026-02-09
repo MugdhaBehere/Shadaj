@@ -1,14 +1,15 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, Modality } from "@google/genai";
 import { decode, decodeAudioData, createPcmBlob } from '../services/geminiService';
 import { api } from '../services/api';
 import { User } from '../types';
 
-interface AIMusicGuruProps {
+interface LiveGuruProps {
     onUpdateUser?: (user: User) => void;
 }
 
-export const AIMusicGuru: React.FC<AIMusicGuruProps> = ({ onUpdateUser }) => {
+export const LiveGuru: React.FC<LiveGuruProps> = ({ onUpdateUser }) => {
   const [isActive, setIsActive] = useState(false);
   const [status, setStatus] = useState("Connect with your AI Sangeet Guru");
   const [showPointsToast, setShowPointsToast] = useState(false);
@@ -28,13 +29,19 @@ export const AIMusicGuru: React.FC<AIMusicGuruProps> = ({ onUpdateUser }) => {
 
   const startSession = async () => {
     try {
+      const apiKey = process.env.API_KEY || (import.meta as any).env?.VITE_API_KEY || (import.meta as any).env?.API_KEY;
+      
+      if (!apiKey) {
+          setStatus("Error: API Key is missing. Check .env file.");
+          return;
+      }
+
       setStatus("Initializing session...");
       hasErrorRef.current = false;
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+      const ai = new GoogleGenAI({ apiKey });
       
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      const inputCtx = new AudioContextClass({ sampleRate: 16000 });
-      const outputCtx = new AudioContextClass({ sampleRate: 24000 });
+      const inputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+      const outputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
       audioContextRef.current = outputCtx;
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -51,7 +58,7 @@ export const AIMusicGuru: React.FC<AIMusicGuruProps> = ({ onUpdateUser }) => {
         },
         callbacks: {
           onopen: () => {
-            setStatus("Guru is listening... Say something.");
+            setStatus("Guru is listening...");
             setIsActive(true);
             
             const source = inputCtx.createMediaStreamSource(stream);
@@ -107,9 +114,9 @@ export const AIMusicGuru: React.FC<AIMusicGuruProps> = ({ onUpdateUser }) => {
       });
 
       sessionRef.current = await sessionPromise;
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setStatus("Failed to start session. Check permissions/key.");
+      setStatus(`Failed to start session: ${err.message || 'Check connection/key'}`);
     }
   };
 
@@ -121,12 +128,6 @@ export const AIMusicGuru: React.FC<AIMusicGuruProps> = ({ onUpdateUser }) => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
     }
-    
-    // Stop audio context to prevent feedback
-    if (audioContextRef.current) {
-        audioContextRef.current.close();
-    }
-
     setIsActive(false);
     setStatus("Session closed.");
 
@@ -205,6 +206,7 @@ export const AIMusicGuru: React.FC<AIMusicGuruProps> = ({ onUpdateUser }) => {
         </div>
       </div>
       
+      <p className="mt-8 text-xs text-stone-400 italic">"Guruh Sakshat Parabrahma Tasmai Shri Gurave Namah"</p>
     </div>
   );
 };

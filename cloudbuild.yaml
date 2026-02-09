@@ -1,3 +1,4 @@
+
 steps:
   # 1. Build the Container Image using build arguments for secrets
   - name: 'gcr.io/cloud-builders/docker'
@@ -13,7 +14,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/shadaj']
 
-  # 3. Deploy to Cloud Run (Optional - remove if only building image)
+  # 3. Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -27,18 +28,19 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      # We also pass the API key to the runtime environment for the backend if needed
+      # Pass runtime environment variables to the backend
       - '--set-env-vars'
-      - 'API_KEY=$_API_KEY'
+      - 'API_KEY=$_API_KEY,VITE_GOOGLE_CLIENT_ID=$_VITE_GOOGLE_CLIENT_ID,MONGODB_URI=$_MONGODB_URI,JWT_SECRET=$_JWT_SECRET'
 
 images:
   - 'gcr.io/$PROJECT_ID/shadaj'
 
-# Fix for "build.service_account is specified" error
 options:
   logging: CLOUD_LOGGING_ONLY
 
-# Define substitution variables (values are passed via CLI --substitutions or Trigger)
+# Define substitution variables (Map these in your Cloud Build Trigger settings)
 substitutions:
   _API_KEY: ''
   _VITE_GOOGLE_CLIENT_ID: ''
+  _MONGODB_URI: ''
+  _JWT_SECRET: ''
