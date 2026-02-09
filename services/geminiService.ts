@@ -1,6 +1,24 @@
-import { GoogleGenAI, Type, Modality } from "@google/genai";
+
+import { GoogleGenAI, Type, Modality, GenerateContentResponse } from "@google/genai";
 
 const API_KEY = process.env.API_KEY || "";
+
+// --- HELPER: RETRY LOGIC ---
+const withRetry = async <T>(operation: () => Promise<T>, retries = 3, delay = 1000): Promise<T> => {
+    try {
+        return await operation();
+    } catch (error: any) {
+        // Check for rate limit (429) or service unavailable (503)
+        const isRetryable = error?.status === 429 || error?.status === 503 || (error?.message && error.message.includes('429'));
+        
+        if (retries > 0 && isRetryable) {
+            console.warn(`Gemini API rate limited/busy. Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return withRetry(operation, retries - 1, delay * 2);
+        }
+        throw error;
+    }
+};
 
 // --- HELPER: CONVERT RAW PCM TO WAV DATA URI ---
 function writeString(view: DataView, offset: number, string: string) {
@@ -68,7 +86,7 @@ export const askMusicEncyclopedia = async (userQuery: string, history: {role: st
       history: history
   });
 
-  const response = await chat.sendMessage({ message: userQuery });
+  const response: GenerateContentResponse = await withRetry(() => chat.sendMessage({ message: userQuery }));
   return response.text;
 };
 
@@ -76,25 +94,25 @@ export const askMusicEncyclopedia = async (userQuery: string, history: {role: st
 
 export const getGeminiResponse = async (prompt: string) => {
   const ai = new GoogleGenAI({ apiKey: API_KEY });
-  const response = await ai.models.generateContent({
+  const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: prompt,
     config: {
         systemInstruction: "You are an expert Indian Classical Music Guru named Sangeet AI. Help students with Raag theory, history, and practice tips. Be encouraging and knowledgeable.",
     }
-  });
+  }));
   return response.text;
 };
 
 export const generateCreativePost = async (topic: string) => {
   const ai = new GoogleGenAI({ apiKey: API_KEY });
-  const response = await ai.models.generateContent({
+  const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Write a short, engaging social media post (max 200 characters) about "${topic}" in the context of Indian Classical Music. Include 2 relevant hashtags.`,
     config: {
       temperature: 0.9,
     }
-  });
+  }));
   return response.text;
 };
 
@@ -102,7 +120,7 @@ export const generateCreativePost = async (topic: string) => {
 
 export const generateMusicEmoticon = async (action: string) => {
     const ai = new GoogleGenAI({ apiKey: API_KEY });
-    const response = await ai.models.generateContent({
+    const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Generate a single or pair of emojis that best represent this Indian Music action: "${action}". 
         Examples: 
@@ -110,7 +128,7 @@ export const generateMusicEmoticon = async (action: string) => {
         "Sitar" -> "🪕✨"
         "Wah" -> "🙌🏽✨"
         Only return the emojis.`,
-    });
+    }));
     return response.text?.trim();
 };
 
@@ -120,10 +138,10 @@ export const generateSmartAudio = async (topic: string) => {
     // 1. Generate Script (Semantic Understanding)
     let scriptToSpeak = topic;
     try {
-        const scriptResponse = await ai.models.generateContent({
+        const scriptResponse: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `Write a short, natural, and engaging spoken script (max 2 sentences) based on this topic: "${topic}". It is for a social media audio post about Indian Classical Music. Plain text only, no markdown.`,
-        });
+        }));
         if (scriptResponse.text) {
             scriptToSpeak = scriptResponse.text;
         }
@@ -133,7 +151,7 @@ export const generateSmartAudio = async (topic: string) => {
 
     // 2. Generate Audio (TTS)
     try {
-        const response = await ai.models.generateContent({
+        const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
             model: "gemini-2.5-flash-preview-tts",
             contents: { parts: [{ text: scriptToSpeak }] },
             config: {
@@ -142,7 +160,7 @@ export const generateSmartAudio = async (topic: string) => {
                     voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } },
                 },
             },
-        });
+        }));
         const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
         if (base64Audio) {
             const pcmBytes = decode(base64Audio);
@@ -164,14 +182,14 @@ export const translateText = async (text: string, sourceLanguage: string = '') =
     const ai = new GoogleGenAI({ apiKey: API_KEY });
     
     try {
-        const response = await ai.models.generateContent({
+        const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             // Specific instruction to output only the translation
             contents: `Translate this ${sourceLanguage} text to English. Output ONLY the English translation. Do not include original text. Text: "${text}"`, 
             config: {
                 temperature: 0.1,
             }
-        });
+        }));
         
         let translated = response.text?.trim() || '';
         
@@ -195,7 +213,7 @@ export const translateText = async (text: string, sourceLanguage: string = '') =
 export const parsePaymentIntent = async (userInput: string) => {
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   
-  const response = await ai.models.generateContent({
+  const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Analyze this payment request: "${userInput}".
     1. Extract the amount (number). If user says 'Rupees', 'Rs', or 'Points', treat it as the numeric amount.
@@ -215,7 +233,7 @@ export const parsePaymentIntent = async (userInput: string) => {
         }
       }
     }
-  });
+  }));
   
   return JSON.parse(response.text || '{}');
 };
@@ -227,13 +245,13 @@ export const generateInvoiceNote = async (amount: number, type: string, userRole
     ? `Write a "Dakshina Patra" (Invoice Note) from a Music Guru to a student for ${amount} points for ${type}. It should be dignified, mentioning the value of 'Vidya' (Knowledge) and 'Sadhana' (Practice). Max 20 words.`
     : `Write a humble "Dakshina Offering" note from a student to a Guru offering ${amount} points for ${type}. Use respectful terms like 'Pranam', 'Charan Sparsh', or 'Guru Dakshina'. Max 20 words.`;
 
-  const response = await ai.models.generateContent({
+  const response: GenerateContentResponse = await withRetry(() => ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: prompt,
     config: {
         temperature: 0.7
     }
-  });
+  }));
   return response.text;
 };
 
